@@ -11,18 +11,19 @@ exports.handler = async (event, context, callback) => {
   const requiredFormat = ext === "jpg" ? "jpeg" : ext;
 
   try {
-    const s3Object = await s3.getObject({Bucket, Key}).promise();
+    const s3Object = await s3.getObject({ Bucket, Key }).promise();
     const resizedImage = await sharp(s3Object.Body)
-      .resize(200,200, {fit: "inside"})
+      .resize(1024, 1024, { fit: "inside" })
       .toFormat(requiredFormat)
       .toBuffer();
     await s3
       .putObject({
         Bucket,
-        Key: `board/${filename}`,
+        Key: `resizing-board/${filename}`,
         Body: resizedImage,
-      }).promise();
-    return callback(null, `board/${filename}`);
+      })
+      .promise();
+    return callback(null, `resizing-board/${filename}`);
   } catch (error) {
     return callback(error);
   }
